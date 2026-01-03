@@ -1,0 +1,125 @@
+<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h2>Lista de Benefícios</h2>
+    <div>
+      <button class="btn btn-success" (click)="openCreateModal()">➕ Novo Benefício</button>
+      <button class="btn btn-primary" (click)="openTransferModal()">💸 Transferir</button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Descrição</th>
+        <th>Valor</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let beneficio of beneficios">
+        <td>{{ beneficio.id }}</td>
+        <td>{{ beneficio.nome }}</td>
+        <td>{{ beneficio.descricao || '-' }}</td>
+        <td>{{ formatCurrency(beneficio.valor) }}</td>
+        <td>
+          <span class="badge" [ngClass]="beneficio.ativo ? 'badge-success' : 'badge-danger'">
+            {{ beneficio.ativo ? 'Ativo' : 'Inativo' }}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn-primary" (click)="openEditModal(beneficio)">✏️ Editar</button>
+          <button class="btn btn-danger" (click)="deleteBeneficio(beneficio.id!)">🗑️ Excluir</button>
+        </td>
+      </tr>
+      <tr *ngIf="beneficios.length === 0">
+        <td colspan="6" style="text-align: center; padding: 2rem;">
+          Nenhum benefício encontrado
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal de Benefício -->
+<div *ngIf="showModal" class="modal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditMode ? 'Editar' : 'Novo' }} Benefício</h2>
+      <span class="close" (click)="closeModal()">&times;</span>
+    </div>
+    <form (ngSubmit)="saveBeneficio()">
+      <div class="form-group">
+        <label>Nome *</label>
+        <input type="text" [(ngModel)]="beneficioForm.nome" name="nome" required>
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <textarea [(ngModel)]="beneficioForm.descricao" name="descricao" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Valor *</label>
+        <input type="number" step="0.01" [(ngModel)]="beneficioForm.valor" name="valor" required>
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="beneficioForm.ativo" name="ativo">
+          Ativo
+        </label>
+      </div>
+      <div class="text-right">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Transferência -->
+<div *ngIf="showTransferModal" class="modal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Transferir Valor</h2>
+      <span class="close" (click)="closeModal()">&times;</span>
+    </div>
+    <form (ngSubmit)="executeTransfer()">
+      <div class="form-group">
+        <label>De (Benefício de Origem) *</label>
+        <select [(ngModel)]="transferencia.fromId" name="fromId" required>
+          <option value="0">Selecione...</option>
+          <option *ngFor="let b of beneficios" [value]="b.id" [disabled]="!b.ativo">
+            {{ b.nome }} - {{ formatCurrency(b.valor) }}
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Para (Benefício de Destino) *</label>
+        <select [(ngModel)]="transferencia.toId" name="toId" required>
+          <option value="0">Selecione...</option>
+          <option *ngFor="let b of beneficios" [value]="b.id" [disabled]="!b.ativo || b.id === transferencia.fromId">
+            {{ b.nome }} - {{ formatCurrency(b.valor) }}
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Valor *</label>
+        <input type="number" step="0.01" [(ngModel)]="transferencia.amount" name="amount" required>
+      </div>
+      <div class="text-right">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+        <button type="submit" class="btn btn-success">Transferir</button>
+      </div>
+    </form>
+  </div>
+</div>
+
