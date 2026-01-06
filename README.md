@@ -119,7 +119,7 @@ O método `transfer` do `BeneficioEjbService` foi corrigido para:
 - Validar benefícios ativos
 - Prevenir transferências inválidas
 
-Detalhes técnicos: ver `DOCUMENTACAO_DETALHADA.md`
+Detalhes técnicos implementados no código.
 
 ## Arquitetura
 
@@ -147,7 +147,5 @@ Executar: `mvn test` no diretório `backend-module`
 
 ## Documentação Adicional
 
-- [COMO_ACESSAR.md](COMO_ACESSAR.md) - Guia de acesso e uso da aplicação
-- [DOCUMENTACAO_DETALHADA.md](DOCUMENTACAO_DETALHADA.md) - Documentação técnica completa
 - [docs/README.md](docs/README.md) - Enunciado original do desafio
 
