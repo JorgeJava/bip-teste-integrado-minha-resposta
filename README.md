@@ -1,8 +1,10 @@
-# 🏗️ Desafio Fullstack Integrado - Solução Completa
+# Desafio Fullstack Integrado
 
-## 📋 Visão Geral
+Solução completa para gerenciamento de benefícios com arquitetura em camadas (DB, EJB, Backend Spring Boot, Frontend Angular).
 
-Este projeto implementa uma solução completa em camadas (DB, EJB, Backend Spring Boot, Frontend Angular) para gerenciamento de benefícios com operações CRUD e transferências entre benefícios.
+## Sobre o Projeto
+
+Sistema de gerenciamento de benefícios que permite operações CRUD e transferências entre benefícios, implementado seguindo os requisitos do desafio técnico.
 
 ## 🎯 Estrutura do Projeto
 
@@ -32,33 +34,16 @@ bip-teste-integrado/
 └── docs/                       # Documentação
 ```
 
-## ✅ Funcionalidades Implementadas
+## Funcionalidades
 
-### 1. ✅ Banco de Dados
-- Schema com tabela BENEFICIO
-- Suporte a versionamento (Optimistic Locking)
-- Scripts de seed para dados iniciais
+- **Banco de Dados**: Schema e scripts de inicialização (schema.sql, seed.sql)
+- **EJB**: Correção do bug no BeneficioEjbService com validações, locking e controle transacional
+- **Backend**: API REST completa com CRUD e transferência entre benefícios
+- **Frontend**: Interface Angular para gerenciamento de benefícios
+- **Testes**: Testes unitários do serviço e controller
+- **Documentação**: Swagger/OpenAPI configurado
 
-### 2. ✅ Correção do Bug no EJB
-O `BeneficioEjbService` foi corrigido com:
-- ✅ Validações de entrada (IDs nulos, valores inválidos, etc.)
-- ✅ Validação de saldo suficiente antes da transferência
-- ✅ Locking pessimista (PESSIMISTIC_WRITE) para evitar condições de corrida
-- ✅ Controle transacional com `@TransactionAttribute(REQUIRED)`
-- ✅ Tratamento de exceções com rollback automático
-- ✅ Validação de benefícios ativos
-- ✅ Prevenção de transferências para o mesmo benefício
-
-### 3. ✅ Backend Spring Boot
-- ✅ CRUD completo de benefícios (Create, Read, Update, Delete)
-- ✅ Endpoint de transferência entre benefícios
-- ✅ Integração com a lógica do EJB (implementada como serviço Spring)
-- ✅ Validação de dados com Bean Validation
-- ✅ Tratamento global de exceções
-- ✅ Documentação Swagger/OpenAPI
-- ✅ CORS configurado para o frontend
-
-#### Endpoints da API
+### Endpoints da API
 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
@@ -70,49 +55,40 @@ O `BeneficioEjbService` foi corrigido com:
 | DELETE | `/api/v1/beneficios/{id}` | Deleta benefício |
 | POST | `/api/v1/beneficios/transfer` | Transfere valor entre benefícios |
 
-**Documentação Swagger:** `http://localhost:8080/swagger-ui.html`
+Swagger UI: `http://localhost:8080/swagger-ui.html`
 
-### 4. ✅ Frontend Angular
-- ✅ Interface moderna e responsiva
-- ✅ Listagem de benefícios em tabela
-- ✅ Formulários para criar/editar benefícios
-- ✅ Modal de transferência entre benefícios
-- ✅ Validação de formulários
-- ✅ Tratamento de erros e mensagens de sucesso
-- ✅ Formatação de valores monetários (BRL)
-
-### 5. ✅ Testes
-- ✅ Testes unitários do serviço (`BeneficioServiceTest`)
-- ✅ Testes do controller (`BeneficioControllerTest`)
-- ✅ Cobertura de casos de sucesso e erro
-
-## 🚀 Como Executar
+## Como Executar
 
 ### Pré-requisitos
-- Java 17+
+- Java 17 ou superior
 - Maven 3.6+
 - Node.js 18+ e npm
-- Angular CLI 17+
+- Angular CLI (instalado globalmente: `npm install -g @angular/cli`)
 
-### 1. Backend
+### Passo 1: Compilar e iniciar o Backend
 
 ```bash
+# Compilar o projeto (inclui módulo EJB)
 cd backend-module
-mvn clean install
+mvn clean install -DskipTests
+
+# Iniciar o backend
 mvn spring-boot:run
 ```
 
-O backend estará disponível em: `http://localhost:8080`
+O backend estará disponível em `http://localhost:8080`
 
-**Endpoints úteis:**
-- API: `http://localhost:8080/api/v1/beneficios`
+**Verificar se está funcionando:**
+- API: `http://localhost:8080/api/v1/beneficios` (deve retornar JSON com 2 benefícios)
 - Swagger: `http://localhost:8080/swagger-ui.html`
 - H2 Console: `http://localhost:8080/h2-console`
   - JDBC URL: `jdbc:h2:mem:beneficio_db`
   - Username: `sa`
-  - Password: (vazio)
+  - Password: (deixe vazio)
 
-### 2. Frontend
+### Passo 2: Instalar dependências e iniciar o Frontend
+
+Em um novo terminal:
 
 ```bash
 cd frontend
@@ -120,154 +96,58 @@ npm install
 ng serve
 ```
 
-O frontend estará disponível em: `http://localhost:4200`
+O frontend estará disponível em `http://localhost:4200`
 
-### 3. Executar Testes
+### Passo 3: Executar Testes (Opcional)
 
-**Backend:**
 ```bash
+# Testes do backend
 cd backend-module
 mvn test
 ```
 
-**Frontend:**
-```bash
-cd frontend
-ng test
-```
+**Nota:** Os testes podem falhar com Java 25 devido a incompatibilidade com Mockito. Use `-DskipTests` para compilar sem executar testes.
 
-## 🐞 Detalhes da Correção do Bug
+## Correção do Bug no EJB
 
-### Problema Original
-O método `transfer` no `BeneficioEjbService` tinha os seguintes problemas:
-1. ❌ Não verificava se o saldo era suficiente
-2. ❌ Não usava locking, permitindo condições de corrida
-3. ❌ Não validava dados de entrada
-4. ❌ Podia gerar saldos negativos
-5. ❌ Podia perder atualizações (lost update)
+O método `transfer` do `BeneficioEjbService` foi corrigido para:
 
-### Solução Implementada
+- Validar dados de entrada (IDs, valores)
+- Verificar saldo suficiente antes da transferência
+- Usar locking pessimista (PESSIMISTIC_WRITE) para evitar condições de corrida
+- Garantir controle transacional com rollback automático
+- Validar benefícios ativos
+- Prevenir transferências inválidas
 
-```java
-@TransactionAttribute(TransactionAttributeType.REQUIRED)
-public void transfer(Long fromId, Long toId, BigDecimal amount) {
-    // 1. Validações iniciais
-    // 2. Busca com PESSIMISTIC_WRITE lock
-    // 3. Validação de saldo suficiente
-    // 4. Validação de benefícios ativos
-    // 5. Realização da transferência
-    // 6. Rollback automático em caso de erro
-}
-```
+Detalhes técnicos: ver `DOCUMENTACAO_DETALHADA.md`
 
-**Características da correção:**
-- ✅ **Locking Pessimista**: Previne condições de corrida
-- ✅ **Validação de Saldo**: Impede saldos negativos
-- ✅ **Transações**: Rollback automático em caso de erro
-- ✅ **Versionamento**: Suporte a Optimistic Locking via campo `version`
-- ✅ **Validações**: Entrada validada antes de processar
+## Arquitetura
 
-## 📊 Arquitetura
+A solução segue arquitetura em camadas:
 
-### Camadas
+1. **DB**: Scripts de schema e seed
+2. **EJB**: Lógica de negócio transacional
+3. **Backend**: API REST Spring Boot
+4. **Frontend**: Interface Angular
 
-1. **Camada de Dados (DB)**
-   - Scripts SQL para criação e seed
-   - Banco H2 em memória para desenvolvimento
+## Testes
 
-2. **Camada EJB**
-   - Lógica de negócio reutilizável
-   - Entidade JPA
-   - Serviço transacional
+Testes unitários implementados para:
+- Serviço de benefícios (BeneficioServiceTest)
+- Controller REST (BeneficioControllerTest)
+- Casos de sucesso e erro
 
-3. **Camada Backend (Spring Boot)**
-   - API REST
-   - Repositórios Spring Data JPA
-   - Serviços de aplicação
-   - DTOs para transferência de dados
-   - Controllers REST
+Executar: `mvn test` no diretório `backend-module`
 
-4. **Camada Frontend (Angular)**
-   - Interface do usuário
-   - Serviços HTTP
-   - Componentes reutilizáveis
+## Tecnologias
 
-## 🔒 Segurança e Validações
+**Backend:** Java 17, Spring Boot 3.2.5, Spring Data JPA, H2 Database, Swagger  
+**Frontend:** Angular 17, TypeScript, RxJS  
+**EJB:** Jakarta EE 10, JPA/Hibernate
 
-- ✅ Validação de entrada com Bean Validation
-- ✅ Prevenção de SQL Injection (JPA)
-- ✅ Tratamento de exceções
-- ✅ Validação de regras de negócio
-- ✅ Locking para consistência de dados
+## Documentação Adicional
 
-## 📝 Documentação
-
-- ✅ Swagger/OpenAPI para documentação da API
-- ✅ README completo
-- ✅ Comentários no código
-- ✅ Javadoc nas classes principais
-
-## 🧪 Testes
-
-### Backend
-- Testes unitários do serviço
-- Testes do controller
-- Cobertura de casos de sucesso e erro
-
-### Casos de Teste Implementados
-- ✅ Criação de benefício
-- ✅ Busca por ID
-- ✅ Transferência bem-sucedida
-- ✅ Transferência com saldo insuficiente
-- ✅ Transferência para o mesmo benefício
-- ✅ Validações de entrada
-
-## 🎨 Interface do Usuário
-
-A interface foi desenvolvida com:
-- Design moderno e limpo
-- Responsividade
-- Feedback visual (mensagens de sucesso/erro)
-- Modais para formulários
-- Formatação de valores monetários
-- Validação de formulários
-
-## 📦 Tecnologias Utilizadas
-
-### Backend
-- Java 17
-- Spring Boot 3.2.5
-- Spring Data JPA
-- H2 Database
-- Swagger/OpenAPI
-- Maven
-
-### Frontend
-- Angular 17
-- TypeScript
-- RxJS
-- CSS3
-
-### EJB
-- Jakarta EE 10
-- JPA/Hibernate
-- Jakarta Persistence
-
-## 🔄 Próximos Passos (Melhorias Futuras)
-
-- [ ] Autenticação e autorização
-- [ ] Logs estruturados
-- [ ] Métricas e monitoramento
-- [ ] Testes de integração end-to-end
-- [ ] Docker e Docker Compose
-- [ ] CI/CD completo
-- [ ] Documentação adicional de API
-
-## 👥 Autor
-
-Desenvolvido como parte do desafio fullstack integrado.
-
-## 📄 Licença
-
-Este projeto é um exemplo de implementação para fins educacionais.
+- [COMO_ACESSAR.md](COMO_ACESSAR.md) - Guia de acesso e uso da aplicação
+- [DOCUMENTACAO_DETALHADA.md](DOCUMENTACAO_DETALHADA.md) - Documentação técnica completa
+- [docs/README.md](docs/README.md) - Enunciado original do desafio
 
